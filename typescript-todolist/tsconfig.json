@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    /* File paths */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* Compile target */
+    "target": "es6",
+    "module": "es6",
+    "lib": ["dom", "es6"],
+
+    /* Type checking */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* Output */
+    "sourceMap": false,
+    "declaration": false,
+    "skipLibCheck": true
+  }
+}
