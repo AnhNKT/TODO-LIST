@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý điểm học sinh</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="data:,">
+</head>
+
+<body>
+  <div class="container">
+    <h1>🎓 Quản lý điểm học sinh</h1>
+
+    <div class="form">
+      <input id="name" type="text" placeholder="Tên học sinh">
+      <input id="math" type="number" placeholder="Điểm Toán">
+      <input id="physics" type="number" placeholder="Điểm Lý">
+      <input id="chemistry" type="number" placeholder="Điểm Hóa">
+      <button id="addBtn">Thêm học sinh</button>
+    </div>
+
+    <div id="stats" class="stats">
+      <p>Tổng số học sinh: <span id="totalStudents">0</span></p>
+      <p>Điểm trung bình chung: <span id="avgAll">0.00</span></p>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="studentTable">
+        <thead>
+          <tr>
+            <th>Tên</th>
+            <th>Toán</th>
+            <th>Lý</th>
+            <th>Hóa</th>
+            <th>Trung bình</th>
+            <th>Xếp loại</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>
