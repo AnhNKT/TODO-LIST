@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <meta charset="UTF-8">
-  <title>Quản lý điểm học sinh</title>
+  <title>🎓 Quản lý điểm học sinh</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="icon" href="data:,">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
   <div class="container">
     <h1>🎓 Quản lý điểm học sinh</h1>
 
+    <!-- Form nhập liệu -->
     <div class="form">
       <input id="name" type="text" placeholder="Tên học sinh">
       <input id="math" type="number" placeholder="Điểm Toán">
@@ -20,11 +21,21 @@
       <button id="addBtn">Thêm học sinh</button>
     </div>
 
+    <!-- Ô tìm kiếm -->
+    <input type="text" id="searchInput" placeholder="🔍 Nhập tên để tìm kiếm..." />
+
+    <!-- Thống kê -->
     <div id="stats" class="stats">
       <p>Tổng số học sinh: <span id="totalStudents">0</span></p>
       <p>Điểm trung bình chung: <span id="avgAll">0.00</span></p>
     </div>
 
+    <div id="advancedStats" class="stats"></div>
+
+    <!-- Biểu đồ -->
+    <canvas id="chart" width="400" height="200"></canvas>
+
+    <!-- Bảng học sinh -->
     <div class="table-wrapper">
       <table id="studentTable">
         <thead>
@@ -41,8 +52,15 @@
         <tbody></tbody>
       </table>
     </div>
+
+    <!-- Xuất dữ liệu -->
+    <div class="export">
+      <button id="btnCSV">📁 Xuất CSV</button>
+      <button id="btnTXT">📝 Xuất TXT</button>
+    </div>
   </div>
 
-  <script src="./main.js"></script>
+  <!-- 💡 File JS nằm trong dist -->
+  <script type="module" src="./dist/main.js"></script>
 </body>
 </html>

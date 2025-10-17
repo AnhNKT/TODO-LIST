@@ -67,27 +67,12 @@ th {
   color: white;
 }
 
-.rank-excellent { background: #d1fae5; color: #065f46; }
-.rank-good      { background: #fef3c7; color: #92400e; }
-.rank-average   { background: #e0f2fe; color: #1e3a8a; }
-.rank-weak      { background: #fee2e2; color: #991b1b; }
-
-.editBtn {
-  background: #facc15;
-  color: #1e293b;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
-.deleteBtn {
-  background: #ef4444;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
+#searchInput {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
 .stats {
@@ -97,4 +82,18 @@ th {
   margin-bottom: 15px;
   font-size: 14px;
   line-height: 1.5;
+}
+
+.export {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.export button {
+  margin: 0 5px;
+  background: #059669;
+}
+
+.export button:hover {
+  background: #047857;
 }
