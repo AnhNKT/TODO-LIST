@@ -1,66 +1,125 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>🎓 Quản lý điểm học sinh</title>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="icon" href="data:," />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
   <div class="container">
-    <h1>🎓 Quản lý điểm học sinh</h1>
+    <!-- ======== THANH TIÊU ĐỀ ======== -->
+    <header class="topbar">
+      <h1>🎓 Quản lý điểm học sinh</h1>
+      <div class="controls-top">
+        <button id="btnTheme">🌙 / ☀️</button>
+        <button id="btnClearAll">🗑️ Xóa tất cả</button>
+      </div>
+    </header>
 
-    <!-- Form nhập liệu -->
-    <div class="form">
-      <input id="name" type="text" placeholder="Tên học sinh">
-      <input id="math" type="number" placeholder="Điểm Toán">
-      <input id="physics" type="number" placeholder="Điểm Lý">
-      <input id="chemistry" type="number" placeholder="Điểm Hóa">
-      <button id="addBtn">Thêm học sinh</button>
-    </div>
+    <!-- ======== KHU VỰC FORM NHẬP LIỆU ======== -->
+    <section class="panel">
+      <div class="left">
+        <!-- Form nhập -->
+        <div class="form">
+          <input id="name" type="text" placeholder="Tên học sinh" />
+          <input id="math" type="number" placeholder="Điểm Toán" min="0" max="10" step="0.1" />
+          <input id="physics" type="number" placeholder="Điểm Lý" min="0" max="10" step="0.1" />
+          <input id="chemistry" type="number" placeholder="Điểm Hóa" min="0" max="10" step="0.1" />
+          <button id="addBtn">Thêm học sinh</button>
+        </div>
 
-    <!-- Ô tìm kiếm -->
-    <input type="text" id="searchInput" placeholder="🔍 Nhập tên để tìm kiếm..." />
+        <!-- Công cụ tìm kiếm, lọc, sắp xếp -->
+        <div class="tools">
+          <input id="searchInput" type="text" placeholder="🔍 Tìm kiếm theo tên..." />
+          <select id="filterRank">
+            <option value="">— Lọc theo xếp loại —</option>
+            <option value="Giỏi">Giỏi</option>
+            <option value="Khá">Khá</option>
+            <option value="Trung Bình">Trung Bình</option>
+            <option value="Yếu">Yếu</option>
+          </select>
 
-    <!-- Thống kê -->
-    <div id="stats" class="stats">
-      <p>Tổng số học sinh: <span id="totalStudents">0</span></p>
-      <p>Điểm trung bình chung: <span id="avgAll">0.00</span></p>
-    </div>
+          <div class="sorts">
+            <button id="sortName">Sắp xếp A→Z</button>
+            <button id="sortAvg">Sắp xếp điểm TB ↓</button>
+          </div>
 
-    <div id="advancedStats" class="stats"></div>
+          <!-- Import / Export -->
+          <div class="io">
+            <input type="file" id="importFile" accept=".csv" />
+            <button id="btnCSV">📁 Xuất CSV</button>
+            <button id="btnTXT">📝 Xuất TXT</button>
+          </div>
+        </div>
 
-    <!-- Biểu đồ -->
-    <canvas id="chart" width="400" height="200"></canvas>
+        <!-- ======== HIỂN THỊ BẢNG NGAY DƯỚI INPUT ======== -->
+        <section class="table-section">
+          <div class="table-wrapper">
+            <table id="studentTable">
+              <thead>
+                <tr>
+                  <th>Tên</th>
+                  <th>Toán</th>
+                  <th>Lý</th>
+                  <th>Hóa</th>
+                  <th>TB</th>
+                  <th>Xếp loại</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
 
-    <!-- Bảng học sinh -->
-    <div class="table-wrapper">
-      <table id="studentTable">
-        <thead>
-          <tr>
-            <th>Tên</th>
-            <th>Toán</th>
-            <th>Lý</th>
-            <th>Hóa</th>
-            <th>Trung bình</th>
-            <th>Xếp loại</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+        <!-- ======== THỐNG KÊ ======== -->
+        <div id="stats" class="stats">
+          <p>Tổng học sinh: <strong id="totalStudents">0</strong></p>
+          <p>Điểm TB chung: <strong id="avgAll">0.00</strong></p>
+        </div>
 
-    <!-- Xuất dữ liệu -->
-    <div class="export">
-      <button id="btnCSV">📁 Xuất CSV</button>
-      <button id="btnTXT">📝 Xuất TXT</button>
-    </div>
+        <!-- ======== THỐNG KÊ NÂNG CAO ======== -->
+        <div id="advancedStats" class="stats advanced">
+          <div class="rank-row">
+            <span>Giỏi</span>
+            <progress id="pExcellent" value="0" max="100"></progress>
+            <span id="nExcellent">0 (0%)</span>
+          </div>
+          <div class="rank-row">
+            <span>Khá</span>
+            <progress id="pGood" value="0" max="100"></progress>
+            <span id="nGood">0 (0%)</span>
+          </div>
+          <div class="rank-row">
+            <span>Trung Bình</span>
+            <progress id="pAverage" value="0" max="100"></progress>
+            <span id="nAverage">0 (0%)</span>
+          </div>
+          <div class="rank-row">
+            <span>Yếu</span>
+            <progress id="pWeak" value="0" max="100"></progress>
+            <span id="nWeak">0 (0%)</span>
+          </div>
+        </div>
+
+        <!-- Top 5 học sinh -->
+        <div id="topStudents" class="stats top"></div>
+      </div>
+
+      <div class="right"></div>
+    </section>
+
+    <!-- ======== KHU VỰC BIỂU ĐỒ DƯỚI CÙNG ======== -->
+    <section class="charts">
+      <h2>📊 Biểu đồ thống kê</h2>
+      <div class="chart-container"><canvas id="barChart"></canvas></div>
+      <div class="chart-container"><canvas id="pieChart"></canvas></div>
+    </section>
   </div>
 
-  <!-- 💡 File JS nằm trong dist -->
+  <!-- Liên kết JS -->
   <script type="module" src="./dist/main.js"></script>
 </body>
 </html>

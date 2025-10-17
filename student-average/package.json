@@ -8,5 +8,19 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/speed-insights": "^1.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnhNKT/TODO-LIST.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AnhNKT/TODO-LIST/issues"
+  },
+  "homepage": "https://github.com/AnhNKT/TODO-LIST#readme"
 }
