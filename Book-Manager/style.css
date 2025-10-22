@@ -1,0 +1,163 @@
+/* =============== RESET CƠ BẢN =============== */
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 20px;
+  background: #f9fafc;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  color: #3f51b5;
+  margin-bottom: 20px;
+}
+
+/* =============== FORM =============== */
+.form-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.form-section input,
+.form-section select,
+.form-section textarea {
+  flex: 1 1 180px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.form-actions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-weight: 500;
+  background-color: #3f51b5;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2c3e9d;
+}
+
+/* =============== BỘ LỌC =============== */
+.filter-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.08);
+}
+
+/* =============== BẢNG =============== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.08);
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: #f1f3f6;
+  color: #333;
+  font-weight: 600;
+}
+
+tr:hover {
+  background: #f9f9ff;
+}
+
+/* =============== THỐNG KÊ =============== */
+#stats {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+#stats p {
+  margin: 5px 0;
+}
+
+/* =============== BIỂU ĐỒ =============== */
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* khoảng cách giữa hai biểu đồ */
+  margin-top: 20px;
+  flex-wrap: wrap; /* khi màn hình nhỏ sẽ tự xuống hàng */
+}
+
+.chart-container canvas {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: 45%; /* mỗi biểu đồ chiếm khoảng nửa trang */
+  max-width: 400px;
+  height: 250px !important;
+}
+
+/* =============== POPUP THÔNG BÁO =============== */
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #3f51b5;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  animation: fadeInOut 2s forwards;
+  z-index: 9999;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}

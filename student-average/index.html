@@ -2,124 +2,80 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>🎓 Quản lý điểm học sinh</title>
-  <link rel="stylesheet" href="./style.css" />
-  <link rel="icon" href="data:," />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📚 Quản Lý Sách Nâng Cao</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
-    <!-- ======== THANH TIÊU ĐỀ ======== -->
-    <header class="topbar">
-      <h1>🎓 Quản lý điểm học sinh</h1>
-      <div class="controls-top">
-        <button id="btnTheme">🌙 / ☀️</button>
-        <button id="btnClearAll">🗑️ Xóa tất cả</button>
-      </div>
-    </header>
+    <h1>📚 ỨNG DỤNG QUẢN LÝ SÁCH NÂNG CAO</h1>
 
-    <!-- ======== KHU VỰC FORM NHẬP LIỆU ======== -->
-    <section class="panel">
-      <div class="left">
-        <!-- Form nhập -->
-        <div class="form">
-          <input id="name" type="text" placeholder="Tên học sinh" />
-          <input id="math" type="number" placeholder="Điểm Toán" min="0" max="10" step="0.1" />
-          <input id="physics" type="number" placeholder="Điểm Lý" min="0" max="10" step="0.1" />
-          <input id="chemistry" type="number" placeholder="Điểm Hóa" min="0" max="10" step="0.1" />
-          <button id="addBtn">Thêm học sinh</button>
-        </div>
+    <div class="form-section" id="formSection">
+      <input id="title" placeholder="Tên sách" />
+      <input id="author" placeholder="Tác giả" />
+      <input id="year" type="number" placeholder="Năm xuất bản" />
+      <select id="status">
+        <option value="Chưa đọc">Chưa đọc</option>
+        <option value="Đang đọc">Đang đọc</option>
+        <option value="Hoàn thành">Hoàn thành</option>
+      </select>
+      <input id="rating" type="number" placeholder="Đánh giá (1-5)" min="1" max="5" />
+      <input id="note" placeholder="Ghi chú" />
+      <select id="genre">
+        <option value="">Thể loại</option>
+        <option value="Tiểu thuyết">Tiểu thuyết</option>
+        <option value="Khoa học">Khoa học</option>
+        <option value="Kinh tế">Kinh tế</option>
+        <option value="Khác">Khác</option>
+      </select>
+      <button id="addBtn">➕ Thêm sách</button>
+    </div>
 
-        <!-- Công cụ tìm kiếm, lọc, sắp xếp -->
-        <div class="tools">
-          <input id="searchInput" type="text" placeholder="🔍 Tìm kiếm theo tên..." />
-          <select id="filterRank">
-            <option value="">— Lọc theo xếp loại —</option>
-            <option value="Giỏi">Giỏi</option>
-            <option value="Khá">Khá</option>
-            <option value="Trung Bình">Trung Bình</option>
-            <option value="Yếu">Yếu</option>
-          </select>
+    <div class="filter-section">
+      <input id="search" placeholder="🔍 Tìm kiếm theo tên, tác giả, năm..." />
+      <select id="filterGenre">
+        <option value="">Tất cả thể loại</option>
+        <option value="Tiểu thuyết">Tiểu thuyết</option>
+        <option value="Khoa học">Khoa học</option>
+        <option value="Kinh tế">Kinh tế</option>
+        <option value="Khác">Khác</option>
+      </select>
+      <select id="filterStatus">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Chưa đọc">Chưa đọc</option>
+        <option value="Đang đọc">Đang đọc</option>
+        <option value="Hoàn thành">Hoàn thành</option>
+      </select>
+      <input id="filterRating" type="number" placeholder="Lọc đánh giá ≥ ..." min="1" max="5" />
+      <button id="exportJSON">⬇️ Xuất JSON</button>
+      <button id="exportCSV">⬇️ Xuất CSV</button>
+    </div>
 
-          <div class="sorts">
-            <button id="sortName">Sắp xếp A→Z</button>
-            <button id="sortAvg">Sắp xếp điểm TB ↓</button>
-          </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tên sách</th>
+          <th>Tác giả</th>
+          <th>Trạng thái</th>
+          <th>Năm xuất bản</th>
+          <th>Đánh giá</th>
+          <th>Ghi chú</th>
+          <th>Thể loại</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody id="bookList"></tbody>
+    </table>
 
-          <!-- Import / Export -->
-          <div class="io">
-            <input type="file" id="importFile" accept=".csv" />
-            <button id="btnCSV">📁 Xuất CSV</button>
-            <button id="btnTXT">📝 Xuất TXT</button>
-          </div>
-        </div>
-
-        <!-- ======== HIỂN THỊ BẢNG NGAY DƯỚI INPUT ======== -->
-        <section class="table-section">
-          <div class="table-wrapper">
-            <table id="studentTable">
-              <thead>
-                <tr>
-                  <th>Tên</th>
-                  <th>Toán</th>
-                  <th>Lý</th>
-                  <th>Hóa</th>
-                  <th>TB</th>
-                  <th>Xếp loại</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- ======== THỐNG KÊ ======== -->
-        <div id="stats" class="stats">
-          <p>Tổng học sinh: <strong id="totalStudents">0</strong></p>
-          <p>Điểm TB chung: <strong id="avgAll">0.00</strong></p>
-        </div>
-
-        <!-- ======== THỐNG KÊ NÂNG CAO ======== -->
-        <div id="advancedStats" class="stats advanced">
-          <div class="rank-row">
-            <span>Giỏi</span>
-            <progress id="pExcellent" value="0" max="100"></progress>
-            <span id="nExcellent">0 (0%)</span>
-          </div>
-          <div class="rank-row">
-            <span>Khá</span>
-            <progress id="pGood" value="0" max="100"></progress>
-            <span id="nGood">0 (0%)</span>
-          </div>
-          <div class="rank-row">
-            <span>Trung Bình</span>
-            <progress id="pAverage" value="0" max="100"></progress>
-            <span id="nAverage">0 (0%)</span>
-          </div>
-          <div class="rank-row">
-            <span>Yếu</span>
-            <progress id="pWeak" value="0" max="100"></progress>
-            <span id="nWeak">0 (0%)</span>
-          </div>
-        </div>
-
-        <!-- Top 5 học sinh -->
-        <div id="topStudents" class="stats top"></div>
-      </div>
-
-      <div class="right"></div>
-    </section>
-
-    <!-- ======== KHU VỰC BIỂU ĐỒ DƯỚI CÙNG ======== -->
-    <section class="charts">
-      <h2>📊 Biểu đồ thống kê</h2>
-      <div class="chart-container"><canvas id="barChart"></canvas></div>
-      <div class="chart-container"><canvas id="pieChart"></canvas></div>
-    </section>
+    <div class="chart-container">
+      <canvas id="statusChart"></canvas>
+      <canvas id="yearChart"></canvas>
+    </div>
   </div>
 
-  <!-- Liên kết JS -->
-  <script type="module" src="./dist/main.js"></script>
+  <div id="popup"></div>
+
+  <script src="book.js"></script>
 </body>
 </html>
