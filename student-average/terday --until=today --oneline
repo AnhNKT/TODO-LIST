@@ -1,0 +1,396 @@
+[33mcommit a445f5e5d82149c0dceaf0249549e58fd8fba96e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: AnhNKT <AnhNKTGCH210170@fpt.edu.vn>
+Date:   Fri Oct 17 16:45:58 2025 +0700
+
+    tuananh
+
+[1mdiff --git a/student-average/dist/main.js b/student-average/dist/main.js[m
+[1mindex ffa2ea6..6dbf8f2 100644[m
+[1m--- a/student-average/dist/main.js[m
+[1m+++ b/student-average/dist/main.js[m
+[36m@@ -1,19 +1,15 @@[m
+ "use strict";[m
+[31m-// ===================== KHAI BÁO KIỂU DỮ LIỆU =====================[m
+[31m-var _a, _b, _c, _d;[m
+[32m+[m[32m// ===================== STATE =====================[m
+ let students = [];[m
+[31m-// ===================== HÀM TIỆN ÍCH =====================[m
+[31m-// Sinh ID ngẫu nhiên[m
+[31m-function uid() {[m
+[31m-    return Math.random().toString(36).substring(2, 9);[m
+[31m-}[m
+[31m-// Tính trung bình[m
+[31m-function calcAverage(scores) {[m
+[32m+[m[32mlet barChartInstance = null;[m
+[32m+[m[32mlet pieChartInstance = null;[m
+[32m+[m[32m// ===================== UTILITIES =====================[m
+[32m+[m[32mconst uid = () => Math.random().toString(36).substring(2, 9);[m
+[32m+[m[32mconst calcAverage = (scores) => {[m
+     const total = scores.reduce((a, b) => a + b, 0);[m
+     return parseFloat((total / scores.length).toFixed(2));[m
+[31m-}[m
+[31m-// Phân loại học sinh[m
+[31m-function classify(avg) {[m
+[32m+[m[32m};[m
+[32m+[m[32mconst classify = (avg) => {[m
+     if (avg >= 8)[m
+         return "Giỏi";[m
+     if (avg >= 6.5)[m
+[36m@@ -21,81 +17,171 @@[m [mfunction classify(avg) {[m
+     if (avg >= 5)[m
+         return "Trung Bình";[m
+     return "Yếu";[m
+[31m-}[m
+[31m-// Lưu và tải dữ liệu LocalStorage[m
+[31m-function saveData() {[m
+[32m+[m[32m};[m
+[32m+[m[32mconst saveData = () => {[m
+     localStorage.setItem("students", JSON.stringify(students));[m
+[31m-}[m
+[31m-function loadData() {[m
+[31m-    const data = localStorage.getItem("students");[m
+[31m-    if (data) {[m
+[31m-        students = JSON.parse(data).map((s) => (Object.assign(Object.assign({}, s), { math: Number(s.math), physics: Number(s.physics), chemistry: Number(s.chemistry), average: Number(s.average) })));[m
+[32m+[m[32m};[m
+[32m+[m[32mconst loadData = () => {[m
+[32m+[m[32m    const d = localStorage.getItem("students");[m
+[32m+[m[32m    if (d) {[m
+[32m+[m[32m        students = JSON.parse(d).map((s) => (Object.assign(Object.assign({}, s), { math: Number(s.math), physics: Number(s.physics), chemistry: Number(s.chemistry), average: Number(s.average) })));[m
+     }[m
+[31m-}[m
+[31m-// Reset form[m
+[32m+[m[32m};[m
+[32m+[m[32m// Theme helpers[m
+[32m+[m[32mconst saveTheme = (isDark) => localStorage.setItem("themeDark", isDark ? "1" : "0");[m
+[32m+[m[32mconst loadTheme = () => localStorage.getItem("themeDark") === "1";[m
+[32m+[m[32m// ===================== BASIC HELPERS (DEFINE EARLY) =====================[m
+ function resetForm() {[m
+[31m-    document.getElementById("name").value = "";[m
+[31m-    document.getElementById("math").value = "";[m
+[31m-    document.getElementById("physics").value = "";[m
+[31m-    document.getElementById("chemistry").value = "";[m
+[32m+[m[32m    const nameEl = document.getElementById("name");[m
+[32m+[m[32m    const mathEl = document.getElementById("math");[m
+[32m+[m[32m    const physEl = document.getElementById("physics");[m
+[32m+[m[32m    const chemEl = document.getElementById("chemistry");[m
+     const addBtn = document.getElementById("addBtn");[m
+[31m-    addBtn.textContent = "Thêm học sinh";[m
+[31m-    delete addBtn.dataset.editId;[m
+[32m+[m[32m    if (nameEl)[m
+[32m+[m[32m        nameEl.value = "";[m
+[32m+[m[32m    if (mathEl)[m
+[32m+[m[32m        mathEl.value = "";[m
+[32m+[m[32m    if (physEl)[m
+[32m+[m[32m        physEl.value = "";[m
+[32m+[m[32m    if (chemEl)[m
+[32m+[m[32m        chemEl.value = "";[m
+[32m+[m[32m    if (addBtn) {[m
+[32m+[m[32m        addBtn.textContent = "Thêm học sinh";[m
+[32m+[m[32m        delete addBtn.dataset.editId;[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m[32mfunction getSearchValue() {[m
+[32m+[m[32m    const el = document.getElementById("searchInput");[m
+[32m+[m[32m    return el ? el.value.trim() : "";[m
+ }[m
+[31m-// ===================== HIỂN THỊ DANH SÁCH =====================[m
+[31m-function renderTable(keyword = "") {[m
+[32m+[m[32mfunction getFilterValue() {[m
+[32m+[m[32m    const el = document.getElementById("filterRank");[m
+[32m+[m[32m    return el ? el.value : "";[m
+[32m+[m[32m}[m
+[32m+[m[32m// ===================== RENDERING (TABLE / STATS / CHARTS) =====================[m
+[32m+[m[32mfunction renderTable(keyword = "", filterRank = "") {[m
+     const tbody = document.querySelector("#studentTable tbody");[m
+     if (!tbody)[m
+         return;[m
+[31m-    tbody.innerHTML = "";[m
+[31m-    students[m
+[32m+[m[32m    const list = students[m
+         .filter((s) => s.name.toLowerCase().includes(keyword.toLowerCase()))[m
+[31m-        .forEach((s) => {[m
+[31m-        var _a, _b;[m
+[31m-        const tr = document.createElement("tr");[m
+[31m-        tr.innerHTML = `[m
+[31m-        <td>${s.name}</td>[m
+[31m-        <td>${s.math}</td>[m
+[31m-        <td>${s.physics}</td>[m
+[31m-        <td>${s.chemistry}</td>[m
+[31m-        <td>${s.average.toFixed(2)}</td>[m
+[31m-        <td>${s.rank}</td>[m
+[31m-        <td>[m
+[31m-          <button class="btn-edit">Sửa</button>[m
+[31m-          <button class="btn-delete">Xóa</button>[m
+[31m-        </td>[m
+[31m-      `;[m
+[31m-        tbody.appendChild(tr);[m
+[31m-        (_a = tr.querySelector(".btn-edit")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => startEdit(s.id));[m
+[31m-        (_b = tr.querySelector(".btn-delete")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => deleteStudent(s.id));[m
+[31m-    });[m
+[32m+[m[32m        .filter((s) => (filterRank ? s.rank === filterRank : true));[m
+[32m+[m[32m    tbody.innerHTML = list[m
+[32m+[m[32m        .map((s) => `<tr>[m
+[32m+[m[32m      <td>${s.name}</td>[m
+[32m+[m[32m      <td>${s.math}</td>[m
+[32m+[m[32m      <td>${s.physics}</td>[m
+[32m+[m[32m      <td>${s.chemistry}</td>[m
+[32m+[m[32m      <td>${s.average.toFixed(2)}</td>[m
+[32m+[m[32m      <td>${s.rank}</td>[m
+[32m+[m[32m      <td>[m
+[32m+[m[32m        <button class="btn-edit" data-id="${s.id}">Sửa</button>[m
+[32m+[m[32m        <button class="btn-delete" data-id="${s.id}">Xóa</button>[m
+[32m+[m[32m      </td>[m
+[32m+[m[32m    </tr>`)[m
+[32m+[m[32m        .join("");[m
+[32m+[m[32m    // Attach handlers[m
+[32m+[m[32m    const editBtns = Array.from(document.querySelectorAll("#studentTable .btn-edit"));[m
+[32m+[m[32m    editBtns.forEach((el) => el.addEventListener("click", (e) => {[m
+[32m+[m[32m        const id = e.currentTarget.getAttribute("data-id");[m
+[32m+[m[32m        startEdit(id);[m
+[32m+[m[32m    }));[m
+[32m+[m[32m    const delBtns = Array.from(document.querySelectorAll("#studentTable .btn-delete"));[m
+[32m+[m[32m    delBtns.forEach((el) => el.addEventListener("click", (e) => {[m
+[32m+[m[32m        const id = e.currentTarget.getAttribute("data-id");[m
+[32m+[m[32m        deleteStudent(id);[m
+[32m+[m[32m    }));[m
+[32m+[m[32m    renderStats();[m
+     renderAdvancedStats();[m
+[32m+[m[32m    renderTopStudents();[m
+ }[m
+[31m-// ===================== THỐNG KÊ CƠ BẢN =====================[m
+ function renderStats() {[m
+     const total = students.length;[m
+     const avgAll = total ? calcAverage(students.map((s) => s.average)) : 0;[m
+     const totalEl = document.getElementById("totalStudents");[m
+     const avgEl = document.getElementById("avgAll");[m
+     if (totalEl)[m
+[31m-        totalEl.textContent = total.toString();[m
+[32m+[m[32m        totalEl.textContent = String(total);[m
+     if (avgEl)[m
+         avgEl.textContent = avgAll.toFixed(2);[m
+ }[m
+[31m-// ===================== THÊM / SỬA HỌC SINH =====================[m
+[31m-(_a = document.getElementById("addBtn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {[m
+[31m-    const name = document.getElementById("name").value.trim();[m
+[31m-    const math = parseFloat(document.getElementById("math").value);[m
+[31m-    const physics = parseFloat(document.getElementById("physics").value);[m
+[31m-    const chemistry = parseFloat(document.getElementById("chemistry").value);[m
+[32m+[m[32mfunction renderAdvancedStats() {[m
+[32m+[m[32m    const ranks = { "Giỏi": 0, "Khá": 0, "Trung Bình": 0, "Yếu": 0 };[m
+[32m+[m[32m    students.forEach((s) => (ranks[s.rank] = (ranks[s.rank] || 0) + 1));[m
+[32m+[m[32m    const total = students.length || 1;[m
+[32m+[m[32m    const setProg = (idProg, idText, count) => {[m
+[32m+[m[32m        const percent = total ? (count / total) * 100 : 0;[m
+[32m+[m[32m        const prog = document.getElementById(idProg);[m
+[32m+[m[32m        const txt = document.getElementById(idText);[m
+[32m+[m[32m        if (prog)[m
+[32m+[m[32m            prog.value = Number(percent.toFixed(1));[m
+[32m+[m[32m        if (txt)[m
+[32m+[m[32m            txt.textContent = `${count} (${percent.toFixed(1)}%)`;[m
+[32m+[m[32m    };[m
+[32m+[m[32m    setProg("pExcellent", "nExcellent", ranks["Giỏi"]);[m
+[32m+[m[32m    setProg("pGood", "nGood", ranks["Khá"]);[m
+[32m+[m[32m    setProg("pAverage", "nAverage", ranks["Trung Bình"]);[m
+[32m+[m[32m    setProg("pWeak", "nWeak", ranks["Yếu"]);[m
+[32m+[m[32m    renderCharts(ranks);[m
+[32m+[m[32m}[m
+[32m+[m[32mfunction renderTopStudents() {[m
+[32m+[m[32m    const top = [...students].sort((a, b) => b.average - a.average).slice(0, 5);[m
+[32m+[m[32m    const el = document.getElementById("topStudents");[m
+[32m+[m[32m    if (!el)[m
+[32m+[m[32m        return;[m
+[32m+[m[32m    if (top.length === 0) {[m
+[32m+[m[32m        el.innerHTML = "<p>Chưa có dữ liệu</p>";[m
+[32m+[m[32m        return;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    el.innerHTML = `<h3>Top 5 học sinh</h3>` + top.map((s, i) => `<p>${i + 1}. ${s.name} — ${s.average.toFixed(2)}</p>`).join("");[m
+[32m+[m[32m}[m
+[32m+[m[32mfunction renderCharts(ranks) {[m
+[32m+[m[32m    const labels = Object.keys(ranks);[m
+[32m+[m[32m    const values = labels.map((k) => ranks[k]);[m
+[32m+[m[32m    const barCanvas = document.getElementById("barChart");[m
+[32m+[m[32m    const pieCanvas = document.getElementById("pieChart");[m
+[32m+[m[32m    if (barCanvas) {[m
+[32m+[m[32m        if (barChartInstance)[m
+[32m+[m[32m            barChartInstance.destroy();[m
+[32m+[m[32m        barChartInstance = new window.Chart(barCanvas, {[m
+[32m+[m[32m            type: "bar",[m
+[32m+[m[32m            data: {[m
+[32m+[m[32m                labels,[m
+[32m+[m[32m                datasets: [{ label: "Số lượng", data: values, backgroundColor: ["#16a34a", "#2563eb", "#facc15", "#ef4444"] }],[m
+[32m+[m[32m            },[m
+[32m+[m[32m            options: { responsive: true, plugins: { legend: { display: false } } },[m
+[32m+[m[32m        });[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if (pieCanvas) {[m
+[32m+[m[32m        if (pieChartInstance)[m
+[32m+[m[32m            pieChartInstance.destroy();[m
+[32m+[m[32m        pieChartInstance = new window.Chart(pieCanvas, {[m
+[32m+[m[32m            type: "pie",[m
+[32m+[m[32m            data: { labels, datasets: [{ data: values, backgroundColor: ["#16a34a", "#2563eb", "#facc15", "#ef4444"] }] },[m
+[32m+[m[32m            options: { responsive: true },[m
+[32m+[m[32m        });[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m[32m// ===================== CRUD =====================[m
+[32m+[m[32mfunction addOrUpdateStudentFromForm() {[m
+[32m+[m[32m    const nameEl = document.getElementById("name");[m
+[32m+[m[32m    const mathEl = document.getElementById("math");[m
+[32m+[m[32m    const physEl = document.getElementById("physics");[m
+[32m+[m[32m    const chemEl = document.getElementById("chemistry");[m
+[32m+[m[32m    const addBtn = document.getElementById("addBtn");[m
+[32m+[m[32m    if (!nameEl || !mathEl || !physEl || !chemEl || !addBtn)[m
+[32m+[m[32m        return;[m
+[32m+[m[32m    const name = nameEl.value.trim();[m
+[32m+[m[32m    const math = parseFloat(mathEl.value);[m
+[32m+[m[32m    const physics = parseFloat(physEl.value);[m
+[32m+[m[32m    const chemistry = parseFloat(chemEl.value);[m
+     if (!name || [math, physics, chemistry].some((v) => isNaN(v) || v < 0 || v > 10)) {[m
+         alert("Vui lòng nhập tên và điểm hợp lệ (0–10).");[m
+         return;[m
+     }[m
+[31m-    const addBtn = document.getElementById("addBtn");[m
+[31m-    const editId = addBtn.dataset.editId;[m
+     const avg = calcAverage([math, physics, chemistry]);[m
+     const rank = classify(avg);[m
+[32m+[m[32m    const editId = addBtn.dataset.editId;[m
+     if (editId) {[m
+         const idx = students.findIndex((s) => s.id === editId);[m
+         if (idx !== -1) {[m
+[36m@@ -106,87 +192,38 @@[m [mfunction renderStats() {[m
+         students.push({ id: uid(), name, math, physics, chemistry, average: avg, rank });[m
+     }[m
+     saveData();[m
+[31m-    renderTable();[m
+[31m-    renderStats();[m
+     resetForm();[m
+[31m-});[m
+[31m-// ===================== CHỈNH SỬA & XÓA =====================[m
+[32m+[m[32m    renderTable(getSearchValue(), getFilterValue());[m
+[32m+[m[32m}[m
+ function startEdit(id) {[m
+     const s = students.find((x) => x.id === id);[m
+     if (!s)[m
+         return;[m
+     document.getElementById("name").value = s.name;[m
+[31m-    document.getElementById("math").value = s.math.toString();[m
+[31m-    document.getElementById("physics").value = s.physics.toString();[m
+[31m-    document.getElementById("chemistry").value = s.chemistry.toString();[m
+[32m+[m[32m    document.getElementById("math").value = String(s.math);[m
+[32m+[m[32m    document.getElementById("physics").value = String(s.physics);[m
+[32m+[m[32m    document.getElementById("chemistry").value = String(s.chemistry);[m
+     const addBtn = document.getElementById("addBtn");[m
+[31m-    addBtn.textContent = "Lưu thay đổi";[m
+[31m-    addBtn.dataset.editId = id;[m
+[32m+[m[32m    if (addBtn) {[m
+[32m+[m[32m        addBtn.textContent = "Lưu thay đổi";[m
+[32m+[m[32m        addBtn.dataset.editId = id;[m
+[32m+[m[32m    }[m
+ }[m
+ function deleteStudent(id) {[m
+     if (!confirm("Bạn có chắc muốn xóa học sinh này?"))[m
+         return;[m
+     students = students.filter((s) => s.id !== id);[m
+     saveData();[m
+[31m-    renderTable();[m
+[31m-    renderStats();[m
+[32m+[m[32m    renderTable(getSearchValue(), getFilterValue());[m
+ }[m
+[31m-// ===================== TÌM KIẾM =====================[m
+[31m-(_b = document.getElementById("searchInput")) === null || _b === void 0 ? void 0 : _b.addEventListener("input", (e) => {[m
+[31m-    const keyword = e.target.value;[m
+[31m-    renderTable(keyword);[m
+[31m-});[m
+[31m-// ===================== THỐNG KÊ NÂNG CAO =====================[m
+[31m-function renderAdvancedStats() {[m
+[31m-    const ranks = { "Giỏi": 0, "Khá": 0, "Trung Bình": 0, "Yếu": 0 };[m
+[31m-    const total = students.length;[m
+[31m-    students.forEach((s) => (ranks[s.rank] = (ranks[s.rank] || 0) + 1));[m
+[31m-    const statsDiv = document.getElementById("advancedStats");[m
+[31m-    if (!statsDiv)[m
+[31m-        return;[m
+[31m-    statsDiv.innerHTML = `[m
+[31m-    <p>Giỏi: ${ranks["Giỏi"]} (${((ranks["Giỏi"] / total) * 100 || 0).toFixed(1)}%)</p>[m
+[31m-    <p>Khá: ${ranks["Khá"]} (${((ranks["Khá"] / total) * 100 || 0).toFixed(1)}%)</p>[m
+[31m-    <p>Trung Bình: ${ranks["Trung Bình"]} (${((ranks["Trung Bình"] / total) * 100 || 0).toFixed(1)}%)</p>[m
+[31m-    <p>Yếu: ${ranks["Yếu"]} (${((ranks["Yếu"] / total) * 100 || 0).toFixed(1)}%)</p>[m
+[31m-  `;[m
+[31m-    renderChart(ranks);[m
+[31m-}[m
+[31m-// ===================== BIỂU ĐỒ =====================[m
+[31m-function renderChart(ranks) {[m
+[31m-    const canvas = document.getElementById("chart");[m
+[31m-    if (!canvas)[m
+[31m-        return;[m
+[31m-    const labels = Object.keys(ranks);[m
+[31m-    const values = labels.map((key) => ranks[key]);[m
+[31m-    if (window.chartInstance)[m
+[31m-        window.chartInstance.destroy();[m
+[31m-    window.chartInstance = new window.Chart(canvas, {[m
+[31m-        type: "bar",[m
+[31m-        data: {[m
+[31m-            labels,[m
+[31m-            datasets: [[m
+[31m-                {[m
+[31m-                    label: "Số lượng học sinh",[m
+[31m-                    data: values,[m
+[31m-                    backgroundColor: ["#16a34a", "#2563eb", "#facc15", "#ef4444"],[m
+[31m-                },[m
+[31m-            ],[m
+[31m-        },[m
+[31m-        options: {[m
+[31m-            responsive: true,[m
+[31m-            plugins: { legend: { display: false } },[m
+[31m-        },[m
+[31m-    });[m
+[31m-}[m
+[31m-// ===================== XUẤT DỮ LIỆU =====================[m
+[32m+[m[32m// ===================== IMPORT / EXPORT =====================[m
+ function exportData(type) {[m
+     if (students.length === 0) {[m
+         alert("Không có dữ liệu để xuất!");[m
+         return;[m
+     }[m
+     const headers = ["Tên", "Toán", "Lý", "Hóa", "Trung bình", "Xếp loại"];[m
+[31m-    const rows = students.map((s) => [s.name, s.math, s.physics, s.chemistry, s.average, s.rank]);[m
+[32m+[m[32m    const rows = students.map((s) => [s.name, s.math, s.physics, s.chemistry, s.average.toFixed(2), s.rank]);[m
+     let content = headers.join(",") + "\n" + rows.map((r) => r.join(",")).join("\n");[m
+     if (type === "txt")[m
+         content = content.replace(/,/g, "\t");[m
+[36m@@ -195,12 +232,109 @@[m [mfunction exportData(type) {[m
+     a.href = URL.createObjectURL(blob);[m
+     a.download = `students.${type}`;[m
+     a.click();[m
+[32m+[m[32m    URL.revokeObjectURL(a.href);[m
+[32m+[m[32m}[m
+[32m+[m[32mfunction importCSVFile(file) {[m
+[32m+[m[32m    const reader = new FileReader();[m
+[32m+[m[32m    reader.onload = (ev) => {[m
+[32m+[m[32m        var _a;[m
+[32m+[m[32m        const text = (_a = ev.target) === null || _a === void 0 ? void 0 : _a.result;[m
+[32m+[m[32m        const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);[m
+[32m+[m[32m        if (lines.length === 0)[m
+[32m+[m[32m            return;[m
+[32m+[m[32m        const firstCols = lines[0].split(",").map((c) => c.trim());[m
+[32m+[m[32m        const hasHeader = isNaN(Number(firstCols[1]));[m
+[32m+[m[32m        const dataLines = hasHeader ? lines.slice(1) : lines;[m
+[32m+[m[32m        dataLines.forEach((ln) => {[m
+[32m+[m[32m            const cols = ln.split(",").map((c) => c.trim());[m
+[32m+[m[32m            if (cols.length >= 4) {[m
+[32m+[m[32m                const name = cols[0];[m
+[32m+[m[32m                const math = Number(cols[1]);[m
+[32m+[m[32m                const physics = Number(cols[2]);[m
+[32m+[m[32m                const chemistry = Number(cols[3]);[m
+[32m+[m[32m                if ([math, physics, chemistry].some((v) => isNaN(v) || v < 0 || v > 10))[m
+[32m+[m[32m                    return;[m
+[32m+[m[32m                const avg = calcAverage([math, physics, chemistry]);[m
+[32m+[m[32m                const rank = classify(avg);[m
+[32m+[m[32m                students.push({ id: uid(), name, math, physics, chemistry, average: avg, rank });[m
+[32m+[m[32m            }[m
+[32m+[m[32m        });[m
+[32m+[m[32m        saveData();[m
+[32m+[m[32m        renderTable(getSearchValue(), getFilterValue());[m
+[32m+[m[32m    };[m
+[32m+[m[32m    reader.readAsText(file);[m
+[32m+[m[32m}[m
+[32m+[m[32m// ==============

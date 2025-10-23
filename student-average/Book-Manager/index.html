@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📚 Quản lý Tủ sách Cá Nhân</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>📚 Quản lý Tủ sách Cá Nhân</h1>
+
+  <div class="form-section">
+    <input id="title" placeholder="Tên sách" />
+    <input id="author" placeholder="Tác giả" />
+    <input id="year" type="number" placeholder="Năm xuất bản" />
+
+    <select id="status">
+      <option value="Đã đọc">Đã đọc</option>
+      <option value="Đang đọc">Đang đọc</option>
+      <option value="Muốn đọc">Muốn đọc</option>
+    </select>
+
+    <select id="genre">
+      <option value="">-- Chọn thể loại --</option>
+      <option value="Tiểu thuyết">Tiểu thuyết</option>
+      <option value="Khoa học">Khoa học</option>
+      <option value="Kinh tế">Kinh tế</option>
+      <option value="Khác">Khác</option>
+    </select>
+
+    <input id="rating" type="number" min="0" max="10" placeholder="Đánh giá (0–10)" />
+    <textarea id="note" placeholder="Ghi chú"></textarea>
+
+    <div class="form-actions">
+      <button id="addBtn">➕ Thêm sách</button>
+      <button id="clearAll">🗑 Xóa tất cả</button>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <input id="searchInput" placeholder="🔍 Tìm theo tên, tác giả hoặc năm..." />
+    <select id="filterStatus">
+      <option value="">Tất cả trạng thái</option>
+      <option value="Đã đọc">Đã đọc</option>
+      <option value="Đang đọc">Đang đọc</option>
+      <option value="Muốn đọc">Muốn đọc</option>
+    </select>
+
+    <select id="filterGenre">
+      <option value="">Tất cả thể loại</option>
+      <option value="Tiểu thuyết">Tiểu thuyết</option>
+      <option value="Khoa học">Khoa học</option>
+      <option value="Kinh tế">Kinh tế</option>
+      <option value="Khác">Khác</option>
+    </select>
+
+    <select id="sortSelect">
+      <option value="">-- Sắp xếp theo --</option>
+      <option value="title">Tên sách (A → Z)</option>
+      <option value="rating">Đánh giá (cao → thấp)</option>
+    </select>
+
+    <!-- Xuất nhập dữ liệu -->
+    <button id="exportJSON">⬇️ Xuất JSON</button>
+    <button id="exportCSV">⬇️ Xuất CSV</button>
+    <button id="importJSON">⬆️ Nhập JSON</button>
+    <button id="importCSV">⬆️ Nhập CSV</button>
+    <!-- Hidden file input dùng cho import -->
+    <input id="fileInput" type="file" accept=".json,.csv,text/csv,application/json" style="display:none" />
+  </div>
+
+  <table id="bookTable">
+    <thead>
+      <tr>
+        <th>Tên sách</th>
+        <th>Tác giả</th>
+        <th>Trạng thái</th>
+        <th>Năm xuất bản</th>
+        <th>Đánh giá</th>
+        <th>Ghi chú</th>
+        <th>Thể loại</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="stats">
+    <p><strong>Tổng số sách:</strong> <span id="totalBooks">0</span></p>
+    <p>
+      <strong>Đã đọc:</strong> <span id="readCount">0</span> — 
+      <strong>Đang đọc:</strong> <span id="readingCount">0</span> — 
+      <strong>Muốn đọc:</strong> <span id="wantCount">0</span>
+    </p>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-box">
+      <h3>📊 Biểu đồ trạng thái đọc</h3>
+      <canvas id="statusChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h3>📈 Biểu đồ sách theo năm</h3>
+      <canvas id="yearChart"></canvas>
+    </div>
+  </div>
+
+  <div id="popup" class="popup" style="display:none"></div>
+
+  <script src="dist/book.js"></script>
+</body>
+</html>

@@ -1,7 +1,8 @@
-// Khai báo Chart (tải qua <script> trong HTML)
+// Thông báo cho TypeScript biết có thư viện Chart và Toastify
 declare const Chart: any;
+declare const Toastify: any;
 
-// Book type
+// ======= CLASS BOOK =======
 class Book {
   constructor(
     public title: string,
@@ -14,6 +15,7 @@ class Book {
   ) { }
 }
 
+// ======= CLASS BOOK MANAGER =======
 class BookManager {
   private books: Book[] = [];
   private editingIndex: number | null = null;
@@ -21,447 +23,313 @@ class BookManager {
   private yearChart: any = null;
 
   constructor() {
-    this.loadFromLocalStorage();
-    this.bindUI();
-    this.renderTable();
-    this.updateStats();
+    this.loadFromLocal();
+    this.showBooks();
+    this.showStats();
   }
 
-  // ================= UI BIND =================
-  bindUI() {
-    const addBtn = document.getElementById("addBtn") as HTMLButtonElement;
-    const clearAllBtn = document.getElementById("clearAll") as HTMLButtonElement;
-    const exportJSONBtn = document.getElementById("exportJSON") as HTMLButtonElement;
-    const exportCSVBtn = document.getElementById("exportCSV") as HTMLButtonElement;
-    const importJSONBtn = document.getElementById("importJSON") as HTMLButtonElement;
-    const importCSVBtn = document.getElementById("importCSV") as HTMLButtonElement;
-    const fileInput = document.getElementById("fileInput") as HTMLInputElement;
-
-    addBtn.onclick = () => this.handleAddOrUpdate();
-    clearAllBtn.onclick = () => this.clearAll();
-
-    exportJSONBtn.onclick = () => this.exportJSON();
-    exportCSVBtn.onclick = () => this.exportCSV();
-
-    importJSONBtn.onclick = () => {
-      fileInput.accept = ".json,application/json";
-      fileInput.value = "";
-      fileInput.onchange = (e) => this.handleFileImport(e, "json");
-      fileInput.click();
-    };
-
-    importCSVBtn.onclick = () => {
-      fileInput.accept = ".csv,text/csv";
-      fileInput.value = "";
-      fileInput.onchange = (e) => this.handleFileImport(e, "csv");
-      fileInput.click();
-    };
-
-    // Filters / events
-    const searchInput = document.getElementById("searchInput") as HTMLInputElement;
-    const filterStatus = document.getElementById("filterStatus") as HTMLSelectElement;
-    const filterGenre = document.getElementById("filterGenre") as HTMLSelectElement;
-    const sortSelect = document.getElementById("sortSelect") as HTMLSelectElement;
-
-    const ratingFilter = document.createElement("input");
-    ratingFilter.type = "number";
-    ratingFilter.placeholder = "Lọc điểm ≥";
-    ratingFilter.min = "0";
-    ratingFilter.max = "10";
-    ratingFilter.style.marginLeft = "8px";
-    document.querySelector(".filter-section")?.appendChild(ratingFilter);
-
-    searchInput.oninput = () => this.applyFilters();
-    filterStatus.onchange = () => this.applyFilters();
-    filterGenre.onchange = () => this.applyFilters();
-    sortSelect.onchange = () => this.applyFilters();
-    ratingFilter.oninput = () => this.applyFilters();
-
-    // expose ratingFilter reference for applyFilters
-    (this as any)._ratingFilter = ratingFilter;
-  }
-
-  // ================= CORE: Add / Update =================
-  // ================= CORE: Add / Update =================
-  handleAddOrUpdate() {
-    const title = (document.getElementById("title") as HTMLInputElement).value.trim();
-    const author = (document.getElementById("author") as HTMLInputElement).value.trim();
-    const year = Number((document.getElementById("year") as HTMLInputElement).value);
-    const status = (document.getElementById("status") as HTMLSelectElement).value;
-    const rating = Number((document.getElementById("rating") as HTMLInputElement).value) || 0;
-    const note = (document.getElementById("note") as HTMLTextAreaElement).value.trim();
-    const genre = (document.getElementById("genre") as HTMLSelectElement).value;
-
-    if (!title || !author || !year) {
-      alert("Vui lòng nhập đủ thông tin (tên, tác giả, năm)!");
-      return;
-    }
-
-    const book = new Book(title, author, year, status, rating, note, genre);
-
+  // ======= THÊM HOẶC CẬP NHẬT SÁCH =======
+  addBook(book: Book) {
     if (this.editingIndex !== null) {
       this.books[this.editingIndex] = book;
+      this.toast("📘 Đã cập nhật thông tin sách!");
       this.editingIndex = null;
       (document.getElementById("addBtn") as HTMLButtonElement).textContent = "➕ Thêm sách";
-      this.showPopup("💾 Đã lưu thay đổi!");
     } else {
       this.books.push(book);
-      this.showPopup("✅ Đã thêm sách!");
+      this.toast("✅ Đã thêm sách mới!");
     }
-
-    this.saveToLocalStorage();
-    this.renderTable();
-    this.updateStats();
-
-    // 👉 THÊM DÒNG NÀY: xóa toàn bộ ô nhập sau khi thêm hoặc sửa
+    this.saveToLocal();
+    this.showBooks();
+    this.showStats();
     this.clearForm();
   }
 
-  // 👉 THÊM HÀM NÀY (không thay đổi logic cũ)
+  // ======= CHỈNH SỬA =======
+  editBook(index: number) {
+    const book = this.books[index];
+    if (!book) return;
+
+    (document.getElementById("title") as HTMLInputElement).value = book.title;
+    (document.getElementById("author") as HTMLInputElement).value = book.author;
+    (document.getElementById("year") as HTMLInputElement).value = book.year.toString();
+    (document.getElementById("status") as HTMLSelectElement).value = book.status;
+    (document.getElementById("rating") as HTMLInputElement).value = book.rating.toString();
+    (document.getElementById("note") as HTMLTextAreaElement).value = book.note;
+    (document.getElementById("genre") as HTMLSelectElement).value = book.genre;
+
+    this.editingIndex = index;
+    (document.getElementById("addBtn") as HTMLButtonElement).textContent = "💾 Lưu thay đổi";
+    this.toast("✏️ Đang chỉnh sửa sách...");
+  }
+
+  // ======= XÓA =======
+  deleteBook(index: number) {
+    const ok = confirm("Bạn có chắc muốn xóa sách này không?");
+    if (ok) {
+      this.books.splice(index, 1);
+      this.saveToLocal();
+      this.showBooks();
+      this.showStats();
+      this.toast("🗑 Đã xóa sách!");
+    }
+  }
+
+  // ======= XÓA TOÀN BỘ =======
+  deleteAll() {
+    if (confirm("Xóa toàn bộ danh sách?")) {
+      this.books = [];
+      this.saveToLocal();
+      this.showBooks();
+      this.showStats();
+      this.toast("🧹 Đã xóa tất cả sách!");
+    }
+  }
+
+  // ======= TÌM KIẾM & LỌC =======
+  filterBooks(keyword: string, status: string, genre: string) {
+    keyword = keyword.toLowerCase();
+    return this.books.filter((b) => {
+      const matchTitle = b.title.toLowerCase().includes(keyword);
+      const matchAuthor = b.author.toLowerCase().includes(keyword);
+      const matchYear = b.year.toString().includes(keyword);
+      const matchStatus = !status || b.status === status;
+      const matchGenre = !genre || b.genre === genre;
+      return (matchTitle || matchAuthor || matchYear) && matchStatus && matchGenre;
+    });
+  }
+
+  // ======= SẮP XẾP =======
+  sortBooks(option: string) {
+    if (option === "title") {
+      this.books.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (option === "rating") {
+      this.books.sort((a, b) => b.rating - a.rating);
+    }
+  }
+
+  // ======= LƯU LOCAL =======
+  saveToLocal() {
+    localStorage.setItem("books", JSON.stringify(this.books));
+  }
+
+  loadFromLocal() {
+    const data = localStorage.getItem("books");
+    if (data) {
+      this.books = JSON.parse(data);
+    }
+  }
+
+  // ======= HIỂN THỊ DANH SÁCH =======
+  showBooks(list: Book[] = this.books) {
+    const tbody = document.querySelector("#bookTable tbody") as HTMLElement;
+    tbody.innerHTML = "";
+
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="p-2 text-center">Chưa có sách nào</td></tr>`;
+      return;
+    }
+
+    list.forEach((book, i) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="border p-2">${book.title}</td>
+        <td class="border p-2">${book.author}</td>
+        <td class="border p-2">${book.status}</td>
+        <td class="border p-2">${book.year}</td>
+        <td class="border p-2">${book.rating}</td>
+        <td class="border p-2">${book.note}</td>
+        <td class="border p-2">${book.genre}</td>
+        <td class="border p-2 text-center">
+          <button onclick="bookManager.editBook(${i})" class="text-blue-600">✏️</button>
+          <button onclick="bookManager.deleteBook(${i})" class="text-red-600 ml-2">🗑</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  // ======= BIỂU ĐỒ & THỐNG KÊ =======
+  showStats() {
+    const total = this.books.length;
+    const read = this.books.filter((b) => b.status === "Đã đọc").length;
+    const reading = this.books.filter((b) => b.status === "Đang đọc").length;
+    const want = this.books.filter((b) => b.status === "Muốn đọc").length;
+
+    (document.getElementById("totalBooks") as HTMLElement).innerText = total.toString();
+    (document.getElementById("readCount") as HTMLElement).innerText = read.toString();
+    (document.getElementById("readingCount") as HTMLElement).innerText = reading.toString();
+    (document.getElementById("wantCount") as HTMLElement).innerText = want.toString();
+
+    this.makeCharts();
+  }
+
+  makeCharts() {
+    const ctx = document.getElementById("statusChart") as HTMLCanvasElement;
+    const ctx2 = document.getElementById("yearChart") as HTMLCanvasElement;
+
+    if (this.statusChart) this.statusChart.destroy();
+    if (this.yearChart) this.yearChart.destroy();
+
+    const statusData = {
+      "Đã đọc": this.books.filter((b) => b.status === "Đã đọc").length,
+      "Đang đọc": this.books.filter((b) => b.status === "Đang đọc").length,
+      "Muốn đọc": this.books.filter((b) => b.status === "Muốn đọc").length,
+    };
+
+    const yearData: Record<number, number> = {};
+    this.books.forEach((b) => {
+      yearData[b.year] = (yearData[b.year] || 0) + 1;
+    });
+
+    this.statusChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: Object.keys(statusData),
+        datasets: [
+          {
+            data: Object.keys(statusData).map(
+              (key) => statusData[key as keyof typeof statusData]
+            ),
+            backgroundColor: ["#4caf50", "#2196f3", "#ff9800"],
+          },
+        ],
+      },
+    });
+
+    this.yearChart = new Chart(ctx2, {
+      type: "bar",
+      data: {
+        labels: Object.keys(yearData),
+        datasets: [
+          {
+            label: "Sách theo năm",
+            data: Object.keys(yearData).map(
+              (key) => yearData[Number(key)]
+            ),
+            backgroundColor: "#673ab7",
+          },
+        ],
+      },
+    });
+  }
+
+
+  // ======= NHẬP / XUẤT FILE =======
+  exportJSON() {
+    const blob = new Blob([JSON.stringify(this.books, null, 2)], { type: "application/json" });
+    this.downloadFile(blob, "books.json");
+  }
+
+  exportCSV() {
+    const header = "Tên,Tác giả,Năm,Trạng thái,Đánh giá,Ghi chú,Thể loại\n";
+    const rows = this.books
+      .map((b) => `${b.title},${b.author},${b.year},${b.status},${b.rating},${b.note},${b.genre}`)
+      .join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv" });
+    this.downloadFile(blob, "books.csv");
+  }
+
+  private downloadFile(blob: Blob, name: string) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+  }
+
+  importFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        this.books = JSON.parse(content);
+        this.saveToLocal();
+        this.showBooks();
+        this.showStats();
+        this.toast("📥 Nhập file thành công!");
+      } catch {
+        this.toast("⚠️ File không hợp lệ!");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ======= DỌN FORM =======
   clearForm() {
     (document.getElementById("title") as HTMLInputElement).value = "";
     (document.getElementById("author") as HTMLInputElement).value = "";
     (document.getElementById("year") as HTMLInputElement).value = "";
-    (document.getElementById("status") as HTMLSelectElement).value = "";
     (document.getElementById("rating") as HTMLInputElement).value = "";
     (document.getElementById("note") as HTMLTextAreaElement).value = "";
     (document.getElementById("genre") as HTMLSelectElement).value = "";
   }
 
-
-  editBook(index: number) {
-    const b = this.books[index];
-    if (!b) return;
-    (document.getElementById("title") as HTMLInputElement).value = b.title;
-    (document.getElementById("author") as HTMLInputElement).value = b.author;
-    (document.getElementById("year") as HTMLInputElement).value = b.year.toString();
-    (document.getElementById("status") as HTMLSelectElement).value = b.status;
-    (document.getElementById("rating") as HTMLInputElement).value = b.rating.toString();
-    (document.getElementById("note") as HTMLTextAreaElement).value = b.note;
-    (document.getElementById("genre") as HTMLSelectElement).value = b.genre;
-
-    this.editingIndex = index;
-    (document.getElementById("addBtn") as HTMLButtonElement).textContent = "💾 Lưu thay đổi";
-
-    // focus & scroll
-    (document.getElementById("title") as HTMLInputElement).focus();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    this.showPopup("✏️ Đang chỉnh sửa sách...");
+  // ======= TOASTIFY =======
+  toast(msg: string) {
+    Toastify({
+      text: msg,
+      duration: 2000,
+      gravity: "bottom",
+      position: "center",
+      style: {
+        background: "linear-gradient(135deg, #4caf50, #2e7d32)",
+        color: "#fff",
+        borderRadius: "8px",
+        fontWeight: "500",
+        padding: "10px 15px",
+      },
+    }).showToast();
   }
 
-  deleteBook(index: number) {
-    if (!confirm("Bạn có chắc muốn xóa sách này?")) return;
-    this.books.splice(index, 1);
-    this.saveToLocalStorage();
-    this.renderTable();
-    this.updateStats();
-    this.showPopup("🗑 Đã xóa sách!");
-  }
-
-  clearAll() {
-    if (!confirm("Bạn có chắc muốn xóa toàn bộ danh sách?")) return;
-    this.books = [];
-    this.saveToLocalStorage();
-    this.renderTable();
-    this.updateStats();
-    this.showPopup("🧹 Đã xóa tất cả sách!");
-  }
-
-  // ================= Filters / Render =================
-  applyFilters() {
-    const keyword = ((document.getElementById("searchInput") as HTMLInputElement).value || "").toLowerCase();
-    const status = (document.getElementById("filterStatus") as HTMLSelectElement).value;
-    const genre = (document.getElementById("filterGenre") as HTMLSelectElement).value;
-    const sort = (document.getElementById("sortSelect") as HTMLSelectElement).value;
-    const ratingMin = Number((this as any)._ratingFilter.value) || 0;
-
-    let list = this.searchAndFilter(keyword, status, ratingMin, genre);
-    if (sort === "title") list.sort((a, b) => a.title.localeCompare(b.title));
-    if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
-    this.renderTable(list);
-  }
-
-  searchAndFilter(keyword: string, status: string, ratingMin: number, genre: string) {
-    return this.books.filter((book) => {
-      const matchKeyword =
-        !keyword ||
-        book.title.toLowerCase().includes(keyword) ||
-        book.author.toLowerCase().includes(keyword) ||
-        book.year.toString().includes(keyword);
-
-      const matchStatus = !status || book.status === status;
-      const matchGenre = !genre || book.genre === genre;
-      const matchRating = isNaN(ratingMin) || book.rating >= ratingMin;
-      return matchKeyword && matchStatus && matchGenre && matchRating;
-    });
-  }
-
-  renderTable(filteredBooks: Book[] = this.books) {
-    const tbody = document.querySelector("#bookTable tbody") as HTMLElement;
-    tbody.innerHTML = "";
-    if (!filteredBooks || filteredBooks.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b;">Không có sách nào</td></tr>`;
-      return;
-    }
-
-    filteredBooks.forEach((b, idx) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${this.escapeHtml(b.title)}</td>
-        <td>${this.escapeHtml(b.author)}</td>
-        <td>${this.escapeHtml(b.status)}</td>
-        <td>${b.year}</td>
-        <td>${b.rating || "-"}</td>
-        <td>${this.escapeHtml(b.note) || "-"}</td>
-        <td>${this.escapeHtml(b.genre) || "-"}</td>
-        <td>
-          <button class="btn-edit" data-idx="${idx}">✏️</button>
-          <button class="btn-del" data-idx="${idx}">🗑</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    // Attach events
-    Array.from(document.querySelectorAll(".btn-edit")).forEach((el) =>
-      el.addEventListener("click", (ev) => {
-        const idx = Number((ev.currentTarget as HTMLElement).getAttribute("data-idx"));
-        this.editBook(idx);
-      })
-    );
-    Array.from(document.querySelectorAll(".btn-del")).forEach((el) =>
-      el.addEventListener("click", (ev) => {
-        const idx = Number((ev.currentTarget as HTMLElement).getAttribute("data-idx"));
-        this.deleteBook(idx);
-      })
-    );
-  }
-
-  escapeHtml(str: string) {
-    if (!str) return "";
-    return str.replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m] as string));
-  }
-
-  updateStats() {
-    (document.getElementById("totalBooks") as HTMLElement).textContent = String(this.books.length);
-    (document.getElementById("readCount") as HTMLElement).textContent = String(this.books.filter((b) => b.status === "Đã đọc").length);
-    (document.getElementById("readingCount") as HTMLElement).textContent = String(this.books.filter((b) => b.status === "Đang đọc").length);
-    (document.getElementById("wantCount") as HTMLElement).textContent = String(this.books.filter((b) => b.status === "Muốn đọc").length);
-    this.renderCharts();
-  }
-
-  // ================= Charts =================
-  renderCharts() {
-    const ctx1 = document.getElementById("statusChart") as HTMLCanvasElement;
-    const ctx2 = document.getElementById("yearChart") as HTMLCanvasElement;
-    if (!ctx1 || !ctx2) return;
-
-    if (this.statusChart) { this.statusChart.destroy(); this.statusChart = null; }
-    if (this.yearChart) { this.yearChart.destroy(); this.yearChart = null; }
-
-    const statusCounts: Record<string, number> = {};
-    const yearCounts: Record<number, number> = {};
-    this.books.forEach((b) => {
-      statusCounts[b.status] = (statusCounts[b.status] || 0) + 1;
-      yearCounts[b.year] = (yearCounts[b.year] || 0) + 1;
-    });
-
-    const statusLabels = Object.keys(statusCounts);
-    const statusData = statusLabels.map((k) => statusCounts[k]);
-    this.statusChart = new (window as any).Chart(ctx1, {
-      type: "pie",
-      data: { labels: statusLabels, datasets: [{ data: statusData, backgroundColor: ["#4caf50", "#2196f3", "#ff9800"] }] },
-      options: { responsive: true, maintainAspectRatio: false }
-    });
-
-    const years = Object.keys(yearCounts).map((y) => Number(y)).sort((a, b) => a - b);
-    const counts = years.map((y) => yearCounts[y]);
-    this.yearChart = new (window as any).Chart(ctx2, {
-      type: "bar",
-      data: { labels: years.map(String), datasets: [{ label: "Sách theo năm", data: counts, backgroundColor: "#673ab7" }] },
-      options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-    });
-  }
-
-  // ================= LocalStorage =================
-  saveToLocalStorage() {
-    localStorage.setItem("books", JSON.stringify(this.books));
-  }
-  loadFromLocalStorage() {
-    const raw = localStorage.getItem("books");
-    if (raw) {
-      try { this.books = JSON.parse(raw); } catch (e) { this.books = []; }
-    } else {
-      this.books = [];
-    }
-  }
-
-  // ================= Export =================
-  exportJSON() {
-    const data = JSON.stringify(this.books, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "books.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    this.showPopup("💾 Đã xuất JSON!");
-  }
-
-  exportCSV() {
-    const header = ["title", "author", "year", "status", "rating", "note", "genre"];
-    const rows = this.books.map(b => [b.title, b.author, String(b.year), b.status, String(b.rating), (b.note || "").replace(/[\n\r,]+/g, " "), b.genre]);
-    const csv = [header, ...rows].map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "books.csv";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    this.showPopup("📄 Đã xuất CSV!");
-  }
-
-  // ================= Import =================
-  handleFileImport(evt: Event, kind: "json" | "csv") {
-    const input = evt.currentTarget as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = String(reader.result || "");
-      try {
-        if (kind === "json") {
-          this.importFromJSONText(text);
-        } else {
-          this.importFromCSVText(text);
-        }
-      } catch (err) {
-        alert("Không thể nhập file: " + (err as any).message);
-      } finally {
-        input.value = "";
-      }
-    };
-    reader.onerror = () => {
-      alert("Lỗi đọc file.");
-      input.value = "";
-    };
-    reader.readAsText(file);
-  }
-
-  importFromJSONText(text: string) {
-    let parsed: any;
-    try { parsed = JSON.parse(text); } catch (e) { throw new Error("JSON không hợp lệ"); }
-    if (!Array.isArray(parsed)) throw new Error("File JSON phải là mảng các object sách");
-
-    // Map & validate
-    const imported: Book[] = parsed.map((o: any, i: number) => {
-      const title = String(o.title || o.titleName || "");
-      const author = String(o.author || o.tacgia || "");
-      const year = Number(o.year || o.nam || 0);
-      const status = String(o.status || "Muốn đọc");
-      const rating = Number(o.rating || 0);
-      const note = String(o.note || "");
-      const genre = String(o.genre || o.theloai || "");
-      if (!title || !author || !year) throw new Error(`Dòng ${i + 1}: thiếu trường bắt buộc`);
-      return new Book(title, author, year, status, rating, note, genre);
-    });
-
-    if (imported.length === 0) { alert("Không có dữ liệu hợp lệ trong file."); return; }
-
-    if (confirm(`Nhập ${imported.length} sách từ file JSON. Bạn muốn ghi đè dữ liệu hiện tại? (Cancel = ghép)`)) {
-      this.books = imported;
-    } else {
-      this.books = this.books.concat(imported);
-    }
-    this.saveToLocalStorage();
-    this.renderTable();
-    this.updateStats();
-    this.showPopup("✅ Đã nhập JSON!");
-  }
-
-  importFromCSVText(text: string) {
-    // split lines, handle CRLF
-    const lines = text.split(/\r?\n/).filter(l => l.trim() !== "");
-    if (lines.length === 0) throw new Error("CSV rỗng");
-    // Try parse header
-    const header = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, "").toLowerCase());
-    const rows = lines.slice(1);
-    const imported: Book[] = [];
-
-    rows.forEach((line, idx) => {
-      // naive CSV parse: split by comma but handle quoted fields
-      const cells = this.parseCSVLine(line);
-      if (cells.length === 0) return;
-      // map by header names if present
-      const obj: any = {};
-      for (let i = 0; i < cells.length; i++) {
-        const key = header[i] || `col${i}`;
-        obj[key] = cells[i];
-      }
-      const title = (obj["title"] || obj["Tên sách"] || obj["name"] || "").toString();
-      const author = (obj["author"] || obj["tác giả"] || obj["tacgia"] || "").toString();
-      const year = Number(obj["year"] || obj["năm"] || obj["nam"] || 0);
-      const status = (obj["status"] || obj["trạng thái"] || "Muốn đọc").toString();
-      const rating = Number(obj["rating"] || obj["điểm"] || 0);
-      const note = (obj["note"] || obj["ghi chú"] || "").toString();
-      const genre = (obj["genre"] || obj["thể loại"] || "").toString();
-
-      if (!title || !author || !year) {
-        // skip invalid row
-        return;
-      }
-      imported.push(new Book(title, author, year, status, rating, note, genre));
-    });
-
-    if (imported.length === 0) { alert("Không tìm thấy dòng hợp lệ trong CSV."); return; }
-
-    if (confirm(`Nhập ${imported.length} sách từ file CSV. Bạn muốn ghi đè dữ liệu hiện tại? (Cancel = ghép)`)) {
-      this.books = imported;
-    } else {
-      this.books = this.books.concat(imported);
-    }
-    this.saveToLocalStorage();
-    this.renderTable();
-    this.updateStats();
-    this.showPopup("✅ Đã nhập CSV!");
-  }
-
-  // Simple CSV line parser (handles quoted commas)
-  parseCSVLine(line: string): string[] {
-    const res: string[] = [];
-    let cur = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') {
-        if (inQuotes && line[i + 1] === '"') { // escaped quote
-          cur += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (ch === "," && !inQuotes) {
-        res.push(cur.trim());
-        cur = "";
-      } else {
-        cur += ch;
-      }
-    }
-    res.push(cur.trim());
-    return res.map(s => s.replace(/^"|"$/g, ""));
-  }
-
-  // ================= Popup =================
-  showPopup(msg: string) {
-    const p = document.getElementById("popup");
-    if (!p) return;
-    p.textContent = msg;
-    p.style.display = "block";
-    setTimeout(() => { p.style.display = "none"; }, 1800);
-  }
 }
 
-// expose
+// ======= KHỞI TẠO =======
 const bookManager = new BookManager();
-(window as any).bookManager = bookManager;
+
+// ======= SỰ KIỆN =======
+const addBtn = document.getElementById("addBtn") as HTMLButtonElement;
+const clearBtn = document.getElementById("clearAll") as HTMLButtonElement;
+const search = document.getElementById("searchInput") as HTMLInputElement;
+const filterStatus = document.getElementById("filterStatus") as HTMLSelectElement;
+const filterGenre = document.getElementById("filterGenre") as HTMLSelectElement;
+const sort = document.getElementById("sortSelect") as HTMLSelectElement;
+const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+
+addBtn.onclick = () => {
+  const title = (document.getElementById("title") as HTMLInputElement).value.trim();
+  const author = (document.getElementById("author") as HTMLInputElement).value.trim();
+  const year = Number((document.getElementById("year") as HTMLInputElement).value);
+  const status = (document.getElementById("status") as HTMLSelectElement).value;
+  const rating = Number((document.getElementById("rating") as HTMLInputElement).value);
+  const note = (document.getElementById("note") as HTMLTextAreaElement).value.trim();
+  const genre = (document.getElementById("genre") as HTMLSelectElement).value;
+
+  if (!title || !author || !year) {
+    bookManager.toast("⚠️ Nhập đầy đủ thông tin!");
+    return;
+  }
+
+  const newBook = new Book(title, author, year, status, rating, note, genre);
+  bookManager.addBook(newBook);
+};
+
+clearBtn.onclick = () => bookManager.deleteAll();
+
+function applyFilter() {
+  const result = bookManager.filterBooks(search.value, filterStatus.value, filterGenre.value);
+  bookManager.sortBooks(sort.value);
+  bookManager.showBooks(result);
+}
+
+search.oninput = applyFilter;
+filterStatus.onchange = applyFilter;
+filterGenre.onchange = applyFilter;
+sort.onchange = applyFilter;
+
+document.getElementById("exportJSON")?.addEventListener("click", () => bookManager.exportJSON());
+document.getElementById("exportCSV")?.addEventListener("click", () => bookManager.exportCSV());
+document.getElementById("importJSON")?.addEventListener("click", () => fileInput.click());
+fileInput.onchange = () => {
+  const file = fileInput.files?.[0];
+  if (file) bookManager.importFile(file);
+};
