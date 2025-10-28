@@ -1,0 +1,380 @@
+/* ===================== RESET ===================== */
+* {
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  margin: 0;
+  padding: 24px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===================== HEADER ===================== */
+h1 {
+  text-align: center;
+  color: #2563eb;
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+#theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: #e2e8f0;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#theme-toggle:hover {
+  background: #cbd5e1;
+}
+
+/* ===================== FORM ===================== */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+form input,
+form select {
+  padding: 10px 12px;
+  border: 1px solid #d0d7e2;
+  border-radius: 8px;
+  font-size: 14px;
+  min-width: 130px;
+}
+
+form input:focus,
+form select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+form button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+form button:hover {
+  background: #1e40af;
+}
+
+/* ===================== TOOLBAR ===================== */
+.filters,
+.file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.filters input,
+.filters select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 14px;
+  height: 36px;
+}
+
+.filters button,
+.file-actions button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  height: 36px;
+}
+
+.filters button:hover,
+.file-actions button:hover {
+  background: #1d4ed8;
+}
+
+/* ===================== SORT GROUP ===================== */
+.sort-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#reverse-sort {
+  background: #e2e8f0;
+  color: #1e293b;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  padding: 8px 10px;
+  cursor: pointer;
+  height: 36px;
+}
+
+#reverse-sort:hover {
+  background: #cbd5e1;
+}
+
+/* ===================== TABLE ===================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 12px;
+}
+
+th {
+  background: #3b82f6;
+  color: white;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+td {
+  padding: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+tr:hover {
+  background: #f1f5f9;
+}
+
+/* ===================== DELETE BUTTON ===================== */
+.del-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.del-btn:hover {
+  background: #b91c1c;
+}
+
+/* ===================== SUMMARY ===================== */
+#summary {
+  text-align: center;
+  font-weight: 600;
+  background: #fff;
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-top: 16px;
+  margin-bottom: 28px;
+}
+
+/* ===================== CHARTS ===================== */
+.charts {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 20px auto;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.charts canvas {
+  flex: 1 1 45%;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  aspect-ratio: 1 / 1;
+  max-width: 480px;
+  height: auto;
+}
+
+/* ===================== DARK MODE ===================== */
+body.dark {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark h1 {
+  color: #60a5fa;
+}
+
+body.dark form,
+body.dark table,
+body.dark #summary,
+body.dark .charts canvas,
+body.dark .filters,
+body.dark .file-actions {
+  background: #1e293b;
+  color: #e2e8f0;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+  border: 1px solid #334155;
+}
+
+body.dark input,
+body.dark select {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #e2e8f0;
+}
+
+body.dark tr:hover {
+  background: #334155;
+}
+
+body.dark .del-btn {
+  background: #dc2626;
+}
+
+body.dark .filters button,
+body.dark .file-actions button {
+  background: #2563eb;
+}
+
+body.dark #theme-toggle {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+/* ===================== TOAST ===================== */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #2563eb;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 15px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(30px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.dark .toast {
+  background: #3b82f6;
+  color: #f8fafc;
+}
+
+/* ===================== PHÂN TRANG ===================== */
+#pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+#pagination button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===================== HIỆU ỨNG ===================== */
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================== POPUP XEM CHI TIẾT ===================== */
+.detail-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+}
+
+.detail-box {
+  background: #fff;
+  padding: 24px;
+  border-radius: 14px;
+  width: 360px;
+  max-width: 90%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  animation: fadeIn 0.3s ease;
+}
+
+.detail-box h3 {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #2563eb;
+}
+
+.detail-box button {
+  margin-top: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+body.dark .detail-box {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}

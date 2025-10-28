@@ -1,124 +1,122 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📚 Quản lý Tủ sách Cá Nhân</title>
-
-  <!-- File CSS của bạn -->
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Chart.js -->
+  <title>📚 Quản Lý Tủ Sách Cá Nhân</title>
+  <script type="module" src="/src/main.ts"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- ✅ Toastify CSS (thêm dòng này) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
+
 <body>
-  <h1>📚 Quản lý Tủ sách Cá Nhân</h1>
-  <div class="form-section">
-    <input id="title" placeholder="Tên sách" />
-    <input id="author" placeholder="Tác giả" />
-    <input id="year" type="number" placeholder="Năm xuất bản" />
+  <header>
+    <h1>📚 Quản Lý Tủ Sách Cá Nhân</h1>
+    <button id="theme-toggle">🌙 Dark Mode</button>
+  </header>
 
-    <select id="status">
-      <option value="Đã đọc">Đã đọc</option>
-      <option value="Đang đọc">Đang đọc</option>
-      <option value="Muốn đọc">Muốn đọc</option>
-    </select>
+  <main>
+    <!-- FORM NHẬP SÁCH -->
+    <section class="form-section">
+      <form id="book-form">
+        <input id="title" placeholder="Tên sách" required />
+        <input id="author" placeholder="Tác giả" required />
+        <input id="year" type="number" placeholder="Năm" required />
+        <select id="status">
+          <option value="Đã đọc">Đã đọc</option>
+          <option value="Đang đọc">Đang đọc</option>
+          <option value="Muốn đọc">Muốn đọc</option>
+        </select>
+        <input id="rating" type="number" placeholder="Điểm (0-10)" min="0" max="10" />
+        <input id="note" placeholder="Ghi chú" />
+        <select id="genre">
+          <option value="">Thể loại</option>
+          <option value="Tiểu thuyết">Tiểu thuyết</option>
+          <option value="Kinh doanh">Kinh doanh</option>
+          <option value="Tâm lý">Tâm lý</option>
+        </select>
+        <button type="submit">➕ Thêm sách</button>
+      </form>
+    </section>
 
-    <select id="genre">
-      <option value="">-- Chọn thể loại --</option>
-      <option value="Tiểu thuyết">Tiểu thuyết</option>
-      <option value="Khoa học">Khoa học</option>
-      <option value="Kinh tế">Kinh tế</option>
-      <option value="Khác">Khác</option>
-    </select>
+    <!-- BỘ LỌC & TÌM KIẾM -->
+    <section class="filters">
+      <input type="text" id="search" placeholder="🔍 Tìm theo tên hoặc tác giả" />
+      <select id="filter-status">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Đã đọc">Đã đọc</option>
+        <option value="Đang đọc">Đang đọc</option>
+        <option value="Muốn đọc">Muốn đọc</option>
+      </select>
+      <select id="filter-genre">
+        <option value="">Tất cả thể loại</option>
+        <option value="Tiểu thuyết">Tiểu thuyết</option>
+        <option value="Kinh doanh">Kinh doanh</option>
+        <option value="Tâm lý">Tâm lý</option>
+      </select>
+      <input type="number" id="filter-year" placeholder="📅 Năm tối thiểu" />
+      <input type="number" id="filter-rating" placeholder="⭐ Điểm tối thiểu" />
+      <select id="sort">
+        <option value="">Sắp xếp</option>
+        <option value="title">Tên</option>
+        <option value="author">Tác giả</option>
+        <option value="year">Năm</option>
+        <option value="rating">Đánh giá</option>
+      </select>
+    </section>
 
-    <input id="rating" type="number" min="0" max="10" placeholder="Đánh giá (0–10)" />
-    <textarea id="note" placeholder="Ghi chú"></textarea>
+    <!-- NÚT XUẤT / NHẬP FILE -->
+    <section class="file-actions">
+      <button id="export-json">💾 Xuất JSON</button>
+      <button id="import-json">📂 Nhập JSON</button>
+      <button id="export-csv">📊 Xuất CSV</button>
+      <input type="file" id="import-csv" accept=".csv" hidden />
+      <button id="import-csv-btn">📥 Nhập CSV</button>
+      <button id="clear-all">🗑️ Xóa tất cả</button>
+    </section>
 
-    <div class="form-actions">
-      <button id="addBtn">➕ Thêm sách</button>
-      <button id="clearAll">🗑 Xóa tất cả</button>
-    </div>
-  </div>
+    <!-- BẢNG DANH SÁCH -->
+    <section class="table-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Tên</th>
+            <th>Tác giả</th>
+            <th>Trạng thái</th>
+            <th>Năm</th>
+            <th>Đánh giá</th>
+            <th>Ghi chú</th>
+            <th>Thể loại</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="book-table"></tbody>
+      </table>
+      <div id="pagination" class="pagination"></div>
+      <p id="summary"></p>
+    </section>
 
-  <div class="filter-section">
-    <input id="searchInput" placeholder="🔍 Tìm theo tên, tác giả hoặc năm..." />
-    <select id="filterStatus">
-      <option value="">Tất cả trạng thái</option>
-      <option value="Đã đọc">Đã đọc</option>
-      <option value="Đang đọc">Đang đọc</option>
-      <option value="Muốn đọc">Muốn đọc</option>
-    </select>
-
-    <select id="filterGenre">
-      <option value="">Tất cả thể loại</option>
-      <option value="Tiểu thuyết">Tiểu thuyết</option>
-      <option value="Khoa học">Khoa học</option>
-      <option value="Kinh tế">Kinh tế</option>
-      <option value="Khác">Khác</option>
-    </select>
-
-    <select id="sortSelect">
-      <option value="">-- Sắp xếp theo --</option>
-      <option value="title">Tên sách (A → Z)</option>
-      <option value="rating">Đánh giá (cao → thấp)</option>
-    </select>
-
-    <!-- Xuất nhập dữ liệu -->
-    <button id="exportJSON">⬇️ Xuất JSON</button>
-    <button id="exportCSV">⬇️ Xuất CSV</button>
-    <button id="importJSON">⬆️ Nhập JSON</button>
-    <button id="importCSV">⬆️ Nhập CSV</button>
-    <!-- Hidden file input dùng cho import -->
-    <input id="fileInput" type="file" accept=".json,.csv,text/csv,application/json" style="display:none" />
-  </div>
-
-  <table id="bookTable">
-    <thead>
-      <tr>
-        <th>Tên sách</th>
-        <th>Tác giả</th>
-        <th>Trạng thái</th>
-        <th>Năm xuất bản</th>
-        <th>Đánh giá</th>
-        <th>Ghi chú</th>
-        <th>Thể loại</th>
-        <th>Hành động</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <div id="stats">
-    <p><strong>Tổng số sách:</strong> <span id="totalBooks">0</span></p>
-    <p>
-      <strong>Đã đọc:</strong> <span id="readCount">0</span> — 
-      <strong>Đang đọc:</strong> <span id="readingCount">0</span> — 
-      <strong>Muốn đọc:</strong> <span id="wantCount">0</span>
-    </p>
-  </div>
-
-  <div class="chart-container">
-    <div class="chart-box">
-      <h3>📊 Biểu đồ trạng thái đọc</h3>
+    <!-- BIỂU ĐỒ -->
+    <section class="charts">
       <canvas id="statusChart"></canvas>
-    </div>
-
-    <div class="chart-box">
-      <h3>📈 Biểu đồ sách theo năm</h3>
       <canvas id="yearChart"></canvas>
-    </div>
+    </section>
+  </main>
+
+  <div class="filters">
+    <label for="theme-select">Màu chủ đạo:</label>
+    <select id="theme-select">
+      <option value="#3b82f6">Xanh</option>
+      <option value="#8b5cf6">Tím</option>
+      <option value="#ef4444">Đỏ</option>
+      <option value="#f59e0b">Vàng cam</option>
+    </select>
   </div>
 
-  <div id="popup" class="popup" style="display:none"></div>
-
-  <!-- ✅ Toastify JS (thêm dòng này, đặt TRƯỚC file book.js) -->
-  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
-  <!-- File JavaScript chính -->
-  <script src="dist/book.js"></script>
+  <!-- TOAST -->
+  <div id="toast-container"></div>
 </body>
+
 </html>
